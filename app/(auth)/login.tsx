@@ -102,10 +102,16 @@ export default function LoginScreen() {
     try {
       setLoading(true);
 
-      await signInWithEmailAndPassword(
-        auth,
-        cleanEmail,
-        password
+      const userCredential =
+        await signInWithEmailAndPassword(
+          auth,
+          cleanEmail,
+          password
+        );
+
+      console.log(
+        'UID:',
+        userCredential.user.uid
       );
 
       router.replace('/(drawer)/home');
@@ -120,7 +126,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1 }}   
       behavior={
         Platform.OS === 'ios'
           ? 'padding'
@@ -135,7 +141,7 @@ export default function LoginScreen() {
          />
 
         <Text style={styles.title}>
-          Bem-vindo 👋
+          Login
         </Text>
 
         <Text style={styles.subtitle}>
@@ -288,8 +294,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 220,
-    height: 120,
+    width: 250,
+    height: 150,
     alignSelf: 'center',
     marginBottom: 10,
   },

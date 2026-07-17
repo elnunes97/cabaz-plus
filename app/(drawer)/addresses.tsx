@@ -1,9 +1,26 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-export default function Addresses() {
+export default function AddressesScreen() {
   return (
-    <View>
-      <Text>Addresses</Text>
+    <View style={styles.container}>
+      
+      <Text style={styles.title}>
+        Endereços
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    justifyContent:"center",
+    alignItems:"center",
+    backgroundColor:"#fff",
+  },
+
+  title:{
+    fontSize:24,
+    fontWeight:"bold",
+  }
+});

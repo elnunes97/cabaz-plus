@@ -5,18 +5,20 @@ import React, {
 } from 'react';
 
 import {
+  DrawerActions,
+  useNavigation,
+} from '@react-navigation/native';
+import {
   ActivityIndicator,
   Animated,
   Image,
-  Modal,
-  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -36,15 +38,15 @@ import {
 } from '../../services/firebase';
 
 import { useCartStore } from '../../src/store/cartStore';
+import { useFavoriteStore } from "../../src/store/favoriteStore";
 
 export default function HomeScreen() {
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  const navigation = useNavigation();
+  const { width } = useWindowDimensions();
   const [produtos, setProdutos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-
-  const { width } = useWindowDimensions();
 
   const categoriesAnim = useRef(new Animated.Value(1)).current;
   const lastScrollY = useRef(0);
@@ -55,6 +57,14 @@ export default function HomeScreen() {
   const getTotalItems = useCartStore((state) => state.getTotalItems);
 
   const totalItems = getTotalItems ? getTotalItems() : 0;
+  // ❤️ FAVORITOS
+const toggleFavorite = useFavoriteStore(
+  (state) => state.toggleFavorite
+);
+
+const isFavorite = useFavoriteStore(
+  (state) => state.isFavorite
+);
 
   useEffect(() => {
     loadProducts();
@@ -197,9 +207,19 @@ export default function HomeScreen() {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setDrawerVisible(true)}>
-          <Ionicons name="menu" size={28} color="#111" />
-        </TouchableOpacity>
+        <TouchableOpacity
+  onPress={() =>
+    navigation.dispatch(
+      DrawerActions.openDrawer()
+    )
+  }
+>
+  <Ionicons
+    name="menu"
+    size={28}
+    color="#111"
+  />
+</TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push('/home')}>
         <Image source={require('../img/cabaz.png')} style={styles.logo}/>
@@ -283,6 +303,31 @@ export default function HomeScreen() {
                 style={[styles.card, { width: cardWidth }]}
               >
                 <TouchableOpacity
+                  style={styles.favoriteButton}
+                  onPress={() =>
+                  toggleFavorite({
+                  id: item.id,
+                  nome: item.nome,
+                  preco: Number(item.preco),
+                  imagem: item.imagem,
+                })
+              }
+              >
+  <Ionicons
+    name={
+      isFavorite(item.id)
+        ? "heart"
+        : "heart-outline"
+    }
+    size={24}
+    color={
+      isFavorite(item.id)
+        ? "#ff3b30"
+        : "#666"
+    }
+  />
+</TouchableOpacity>
+                <TouchableOpacity
                   onPress={() => router.push(`/product/${item.id}`)}
                 >
                   <Image
@@ -330,42 +375,11 @@ export default function HomeScreen() {
         )}
       </Animated.ScrollView>
 
-      {/* DRAWER (mantido igual) */}
-      <Modal animationType="slide" transparent visible={drawerVisible}>
-        <View style={styles.overlay}>
-            <View style={styles.drawer}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setDrawerVisible(false)}
-            >
-              <Ionicons name="close" size={28} color="#000" />
-            </TouchableOpacity>
 
-            <Text style={styles.userName}>Bem-vindo 👋</Text>
-
-            <MenuItem icon="person-outline" title="Perfil" onPress={()=> router.push("/profile")}/>
-            <MenuItem icon="construct-outline" title="Serviços" />
-            <MenuItem icon="information-circle-outline" title="Sobre Nos"  onPress={()=> router.push("/sobrenos")}/>
-            {/*<MenuItem icon="log-out-outline" title="Logout" onPress={handleLogout} />*/}
-            
-          </View>
-
-          <Pressable style={styles.backdrop} onPress={() => setDrawerVisible(false)} />
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
 
-/* MENU ITEM */
-function MenuItem({ icon, title, onPress }: any) {
-  return (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <Ionicons name={icon} size={22} color="#c78200" />
-      <Text style={styles.menuText}>{title}</Text>
-    </TouchableOpacity>
-  );
-}
 
 /* STYLES */
 const styles = StyleSheet.create({
@@ -428,11 +442,26 @@ const styles = StyleSheet.create({
   cardContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
 
   card: {
-    backgroundColor: '#FFF',
-    borderRadius: 18,
-    padding: 10,
-    marginBottom: 15,
-  },
+  backgroundColor: '#FFF',
+  borderRadius: 18,
+  padding: 10,
+  marginBottom: 15,
+  position: "relative",
+},
+
+  favoriteButton: {
+  position: "absolute",
+  top: 10,
+  right: 10,
+  zIndex: 10,
+  backgroundColor: "#fff",
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  justifyContent: "center",
+  alignItems: "center",
+  elevation: 3,
+},
 
   productImage: { width: '100%', height: 140, borderRadius: 12 },
 
@@ -450,17 +479,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  overlay: { flex: 1, flexDirection: 'row' },
-
-  drawer: { width: '75%', backgroundColor: '#fff', padding: 20, },
-
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' },
-
-  closeButton: { alignSelf: 'flex-end' },
-
-  userName: { textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
-
-  menuItem: { flexDirection: 'row', paddingVertical: 15 },
-
-  menuText: { marginLeft: 15 },
 });

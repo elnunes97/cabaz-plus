@@ -1,18 +1,29 @@
 import { create } from 'zustand';
 
-type Product = {
+export type Product = {
   id: string;
   nome: string;
   preco: number;
   imagem: string;
 };
 
-type CartItem = Product & {
+export type CartItem = Product & {
   qty: number;
 };
 
 type CartStore = {
   items: CartItem[];
+
+  lastUpdate: 'local' | 'remote';
+
+  setItems: (items: CartItem[]) => void;
+
+  setRemoteItems: (items: CartItem[]) => void;
+
+  setItemQuantity: (
+    id: string,
+    qty: number
+  ) => void;
 
   addToCart: (
     product: Product,
@@ -38,6 +49,33 @@ export const useCartStore =
   create<CartStore>((set, get) => ({
     items: [],
 
+    lastUpdate: 'remote',
+
+    setItems: (items) =>
+      set({
+        items,
+        lastUpdate: 'local',
+      }),
+
+    setRemoteItems: (items) =>
+      set({
+        items,
+        lastUpdate: 'remote',
+      }),
+
+    setItemQuantity: (id, qty) =>
+      set((state) => ({
+        items: state.items.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                qty,
+              }
+            : item
+        ),
+        lastUpdate: 'local',
+      })),
+
     addToCart: (
       product,
       qty = 1
@@ -61,6 +99,7 @@ export const useCartStore =
                     }
                   : i
             ),
+            lastUpdate: 'local',
           };
         }
 
@@ -72,6 +111,7 @@ export const useCartStore =
               qty,
             },
           ],
+          lastUpdate: 'local',
         };
       });
     },
@@ -82,6 +122,7 @@ export const useCartStore =
           state.items.filter(
             (i) => i.id !== id
           ),
+        lastUpdate: 'local',
       })),
 
     decreaseQty: (id) =>
@@ -100,11 +141,13 @@ export const useCartStore =
             (item) =>
               item.qty > 0
           ),
+        lastUpdate: 'local',
       })),
 
     clearCart: () =>
       set({
         items: [],
+        lastUpdate: 'local',
       }),
 
     getTotal: () =>

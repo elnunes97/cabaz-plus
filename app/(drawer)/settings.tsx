@@ -1,9 +1,25 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-export default function Settings() {
+export default function SettingsScreen() {
   return (
-    <View>
-      <Text>Settings</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>
+        Configurações
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    justifyContent:"center",
+    alignItems:"center",
+    backgroundColor:"#fff",
+  },
+
+  title:{
+    fontSize:24,
+    fontWeight:"bold",
+  }
+});

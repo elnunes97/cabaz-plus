@@ -24,7 +24,7 @@ export default function SobreNos() {
         <SafeAreaView style={{ flex: 1 }}>
                 <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                     {/* HERO */}
-                    <Image source={require('./img/cabaz.png')} style={styles.heroImage} resizeMode="contain" />
+                    <Image source={require('../img/cabaz.png')} style={styles.heroImage} resizeMode="contain" />
                 {/* TÍTULO */}
                 <Text style={styles.title}>Sobre o Cabaz Plus</Text>
 

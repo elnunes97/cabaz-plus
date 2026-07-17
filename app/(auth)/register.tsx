@@ -220,16 +220,36 @@ export default function RegisterScreen() {
 
       // salvar no firestore
       await setDoc(
-        doc(db, 'users', uid),
-        {
-          uid,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          fullName,
-          email: cleanEmail,
-          createdAt: serverTimestamp(),
-        }
-      );
+  doc(db, "users", uid),
+  {
+    uid,
+
+    firstName: firstName.trim(),
+
+    lastName: lastName.trim(),
+
+    fullName,
+
+    email: cleanEmail,
+
+    phone: "",
+
+    photoURL: "",
+
+    cart: [],
+
+    favorites: [],
+
+    addresses: [],
+
+    createdAt: serverTimestamp(),
+
+    updatedAt: serverTimestamp(),
+  },
+  {
+    merge: true,
+  }
+  );
 
       router.replace(
         '/(auth)/login'
