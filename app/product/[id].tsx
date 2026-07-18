@@ -16,6 +16,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 import { useCartStore } from '../../src/store/cartStore';
+import { useFavoriteStore } from "../../src/store/favoriteStore";
 
 
 
@@ -23,6 +24,14 @@ const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const addToCart = useCartStore((state) => state.addToCart);
+  const toggleFavorite = useFavoriteStore(
+  (state) => state.toggleFavorite
+);
+
+const isFavorite = useFavoriteStore(
+  (state) => state.isFavorite
+);
+
   const { id } = useLocalSearchParams();
 
   const [product, setProduct] = useState<any>(null);
@@ -88,6 +97,31 @@ export default function ProductDetails() {
     name="arrow-back"
     size={24}
     color="#111"
+  />
+</TouchableOpacity>
+<TouchableOpacity
+  style={styles.favoriteButton}
+  onPress={() =>
+    toggleFavorite({
+      id: product.id,
+      nome: product.nome,
+      preco: Number(product.preco),
+      imagem: product.imagem,
+    })
+  }
+>
+  <Ionicons
+    name={
+      isFavorite(product.id)
+        ? "heart"
+        : "heart-outline"
+    }
+    size={24}
+    color={
+      isFavorite(product.id)
+        ? "#ff3b30"
+        : "#444"
+    }
   />
 </TouchableOpacity>
 
@@ -378,6 +412,19 @@ featureText: {
   borderRadius: 21,
   justifyContent: 'center',
   alignItems: 'center',
+  elevation: 5,
+},
+favoriteButton: {
+  position: "absolute",
+  top: 20,
+  right: 20,
+  zIndex: 999,
+  backgroundColor: "rgba(255,255,255,0.95)",
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  justifyContent: "center",
+  alignItems: "center",
   elevation: 5,
 },
 });

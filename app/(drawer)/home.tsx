@@ -237,7 +237,10 @@ const isFavorite = useFavoriteStore(
         </View>
 
         {/* ❤️ FAVORITOS */}
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity style={styles.iconButton}
+        
+          onPress={() => router.push('/favorites')}
+        >
           <Ionicons name="heart-outline" size={24} color="#111" />
         </TouchableOpacity>
 
