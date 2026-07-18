@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { ScrollView } from "react-native";
 import { useCartStore } from "../../src/store/cartStore";
 import { useFavoriteStore } from "../../src/store/favoriteStore";
 
@@ -20,6 +21,11 @@ export default function FavoritesScreen() {
   if (favorites.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
+        <ScrollView
+          contentContainerStyle={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          //contentContainerStyle={{ paddingBottom: 20 }}
+          >
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.back}
@@ -46,6 +52,7 @@ export default function FavoritesScreen() {
             Adicione produtos aos favoritos.
           </Text>
         </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }

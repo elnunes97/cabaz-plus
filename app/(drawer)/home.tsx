@@ -5,23 +5,15 @@ import React, {
 } from 'react';
 
 import {
-  DrawerActions,
-  useNavigation,
+  useNavigation
 } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Animated,
-  Image,
-  ScrollView,
   StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  StyleSheet
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { useWindowDimensions } from 'react-native';
@@ -39,6 +31,11 @@ import {
 
 import { useCartStore } from '../../src/store/cartStore';
 import { useFavoriteStore } from "../../src/store/favoriteStore";
+
+import Categories from "../../src/components/home/Categories";
+import HomeBanner from "../../src/components/home/HomeBanner";
+import HomeHeader from "../../src/components/home/HomeHeader";
+import ProductGrid from "../../src/components/home/ProductGrid";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -206,85 +203,21 @@ const isFavorite = useFavoriteStore(
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity
-  onPress={() =>
-    navigation.dispatch(
-      DrawerActions.openDrawer()
-    )
-  }
->
-  <Ionicons
-    name="menu"
-    size={28}
-    color="#111"
-  />
-</TouchableOpacity>
+      <HomeHeader
+        search={search}
+        setSearch={setSearch}
+      />
 
-      <TouchableOpacity onPress={() => router.push('/home')}>
-        <Image source={require('../img/cabaz.png')} style={styles.logo}/>
-        </TouchableOpacity>
-
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={18} color="#999" />
-          <TextInput
-            placeholder="Pesquisar..."
-            placeholderTextColor="#888"
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-
-        {/* ❤️ FAVORITOS */}
-        <TouchableOpacity style={styles.iconButton}
-        
-          onPress={() => router.push('/favorites')}
-        >
-          <Ionicons name="heart-outline" size={24} color="#111" />
-        </TouchableOpacity>
-
-        {/* 🛒 CART COM BADGE */}
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => router.push('/cart')}
-        >
-          <Ionicons name="cart-outline" size={24} color="#111" />
-
-          {totalItems > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{totalItems}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
+      {/* BOTÃO VOLTAR */}
 
       {/* CATEGORIAS */}
-      <Animated.View style={[styles.categories, { opacity: categoriesAnim }]}>
-        {categoriesVisible && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {categorias.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setSelectedCategory(item)}
-                style={[
-                  styles.categoryButton,
-                  selectedCategory === item && { backgroundColor: '#111111ff' },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText,
-                    selectedCategory === item && { color: '#fff' },
-                  ]}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
-      </Animated.View>
+      <Categories
+        categories={categorias}
+        selected={selectedCategory}
+        onSelect={setSelectedCategory}
+        visible={categoriesVisible}
+        animation={categoriesAnim}
+      />
 
       {/* PRODUTOS */}
       <Animated.ScrollView
@@ -292,126 +225,26 @@ const isFavorite = useFavoriteStore(
         scrollEventThrottle={16}
         contentContainerStyle={{ padding: 15, paddingBottom: 40 }}
       >
-        <Image source={require('../img/BANNER.png')} style={styles.banner} />
-
+        <HomeBanner />
         {/* <Text style={styles.sectionTitle}>Produtos</Text> */}
 
         {loading ? (
           <ActivityIndicator size="large" color="#F0C838" />
         ) : (
-          <View style={styles.cardContainer}>
-            {filteredProducts.map((item) => (
-              <View
-                key={item.id}
-                style={[styles.card, { width: cardWidth }]}
-              >
-                <TouchableOpacity
-                  style={styles.favoriteButton}
-                  onPress={() =>
-                  toggleFavorite({
-                  id: item.id,
-                  nome: item.nome,
-                  preco: Number(item.preco),
-                  imagem: item.imagem,
-                })
-              }
-              >
-  <Ionicons
-    name={
-      isFavorite(item.id)
-        ? "heart"
-        : "heart-outline"
-    }
-    size={24}
-    color={
-      isFavorite(item.id)
-        ? "#ff3b30"
-        : "#666"
-    }
-  />
-</TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => router.push(`/product/${item.id}`)}
-                >
-                  <Image
-                    source={{
-                      uri: item.imagem || 'https://via.placeholder.com/300',
-                    }}
-                    style={styles.productImage}
-                  />
-
-                  <Text numberOfLines={1} style={styles.productTitle}>
-                    {item.nome}
-                  </Text>
-
-                  <Text style={styles.productCategory}>
-                    {item.categoria}
-                  </Text>
-
-                  <Text style={styles.productPrice}>
-                    {Number(item.preco || 0).toLocaleString()} FCFA
-                  </Text>
-                </TouchableOpacity>
-
-                {/* ➕ ADD TO CART */}
-                <TouchableOpacity
-                  onPress={() =>
-                    addToCart(
-                      {
-                        id: item.id,
-                        nome: item.nome,
-                        preco: Number(item.preco),
-                        imagem: item.imagem,
-                      },
-                      1
-                    )
-                  }
-                  style={styles.addBtn}
-                >
-                  <Text style={{ fontWeight: 'bold', color: '#111' }}>
-                    Adicionar
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+          <ProductGrid
+            products={filteredProducts}
+            cardWidth={cardWidth}
+          />
         )}
       </Animated.ScrollView>
-
 
     </SafeAreaView>
   );
 }
 
-
 /* STYLES */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F6F6F6' },
-
-  header: {
-    backgroundColor: '#F0C838',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-
-  logo: { width: 50, height: 45, marginHorizontal: 8 },
-
-  searchContainer: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    borderRadius: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    height: 40,
-  },
-
-  searchInput: { flex: 1, marginLeft: 8 },
-
-  iconButton: { marginLeft: 8 },
-
   badge: {
     position: 'absolute',
     top: -5,
@@ -425,9 +258,6 @@ const styles = StyleSheet.create({
   },
 
   badgeText: { color: '#fff', fontSize: 10 },
-
-  categories: { backgroundColor: '#fcf9f3ff', paddingVertical: 10 },
-
   categoryButton: {
     backgroundColor: '#FFF',
     paddingHorizontal: 18,
@@ -435,23 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
   },
-
-  categoryText: { fontWeight: '600' },
-
-  banner: { width: '100%', height: 200, borderRadius: 20, marginBottom: 15 },
-
   sectionTitle: { fontSize: 22, fontWeight: 'bold', marginTop: 20 },
-
-  cardContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-
-  card: {
-  backgroundColor: '#FFF',
-  borderRadius: 18,
-  padding: 10,
-  marginBottom: 15,
-  position: "relative",
-},
-
   favoriteButton: {
   position: "absolute",
   top: 10,
@@ -465,14 +279,6 @@ const styles = StyleSheet.create({
   alignItems: "center",
   elevation: 3,
 },
-
-  productImage: { width: '100%', height: 140, borderRadius: 12 },
-
-  productTitle: { fontWeight: '600', marginTop: 10 },
-
-  productCategory: { color: '#777', fontSize: 12 },
-
-  productPrice: { color: '#c78200', fontWeight: 'bold' },
 
   addBtn: {
     marginTop: 8,
